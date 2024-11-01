@@ -1,3 +1,5 @@
+github.com/alifcapital/otelemetry v0.0.0-20241101090819-2b3dd70178b9 h1:CjxOwNU/FYD4p4gFS83IClAy7FfNUJnVXpnTvea7izU=
+github.com/alifcapital/otelemetry v0.0.0-20241101090819-2b3dd70178b9/go.mod h1:hw1LRNYrozBSvR2ABYF2euz4uzlAhTmU1x+HNQP1or4=
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
 github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
@@ -17,14 +19,6 @@ github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0 h1:asbCHRVmodnJTuQ3qamDwqVOIjw
 github.com/grpc-ecosystem/grpc-gateway/v2 v2.22.0/go.mod h1:ggCgvZ2r7uOoQjOyu2Y1NhHmEPPzzuhWgcza5M1Ji1I=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
-github.com/rorua/otelemetry v0.0.0-20241025104712-df147dc21f5c h1:bH3hJqFUuLwqo5cSH8qSQdPKekIGOEeJe1R4SaG+G4A=
-github.com/rorua/otelemetry v0.0.0-20241025104712-df147dc21f5c/go.mod h1:Rdes4EjVJujkxjZtESeXJ1Sc2I9x9RzGcNtTGRf7uIk=
-github.com/rorua/otelemetry v0.0.0-20241025112042-3e0529498db3 h1:HuJ/kG+mhXaA1OCGoNCUBIGhhassUS7EBp1m1Ez7UtY=
-github.com/rorua/otelemetry v0.0.0-20241025112042-3e0529498db3/go.mod h1:Rdes4EjVJujkxjZtESeXJ1Sc2I9x9RzGcNtTGRf7uIk=
-github.com/rorua/otelemetry v0.0.0-20241025115254-a07d8f8b4b38 h1:/cKJWkLJ8XDYZR0mR9pdS/VBif67uYWECiT+tDpokKE=
-github.com/rorua/otelemetry v0.0.0-20241025115254-a07d8f8b4b38/go.mod h1:Rdes4EjVJujkxjZtESeXJ1Sc2I9x9RzGcNtTGRf7uIk=
-github.com/rorua/otelemetry v0.0.0-20241031095113-0f66fcdbe663 h1:bslpnAehby3w2Yrws4eQR22PLKoLuY7zUf1cm2oFQ0k=
-github.com/rorua/otelemetry v0.0.0-20241031095113-0f66fcdbe663/go.mod h1:Rdes4EjVJujkxjZtESeXJ1Sc2I9x9RzGcNtTGRf7uIk=
 github.com/stretchr/testify v1.9.0 h1:HtqpIVDClZ4nwg75+f6Lvsy/wHu+3BoSGCbBAcpTsTg=
 github.com/stretchr/testify v1.9.0/go.mod h1:r2ic/lqez/lEtzL7wO/rwa5dbSLXVDPFyf8C91i36aY=
 go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.56.0 h1:UP6IpuHFkUgOQL9FFQFrZ+5LiwhhYRbi7VZSIx6Nj5s=

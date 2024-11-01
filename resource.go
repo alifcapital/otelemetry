@@ -15,11 +15,10 @@ func newResource(ctx context.Context, cfg Config) (*sdkresource.Resource, error)
 		semconv.ServiceNamespaceKey.String(cfg.Service.Namespace),
 		semconv.ServiceVersionKey.String(cfg.Service.Version),
 	}
-	extraRes, _ := resource.New(ctx, resourceOpts(cfg.ResourceOptions, attrs))
-	return sdkresource.Merge(extraRes, resource.Default())
+	return resource.New(ctx, resourceOpts(cfg.ResourceOptions, attrs)...)
 }
 
-func resourceOpts(options []sdkresource.Option, attrs []attribute.KeyValue) sdkresource.Option {
+func resourceOpts(options []sdkresource.Option, attrs []attribute.KeyValue) []sdkresource.Option {
 	opts := []sdkresource.Option{
 		sdkresource.WithAttributes(attrs...),
 	}
@@ -28,5 +27,5 @@ func resourceOpts(options []sdkresource.Option, attrs []attribute.KeyValue) sdkr
 		opts = append(opts, options...)
 	}
 
-	return sdkresource.WithAttributes(attrs...)
+	return opts
 }

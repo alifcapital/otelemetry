@@ -31,9 +31,9 @@ func main() {
 			Port: "4317",
 		},
 		ResourceOptions: getResources(),
-		WithMetrics:     true,
-		WithLogs:        true,
-		WithTraces:      true,
+		WithMetrics:     false,
+		WithLogs:        false,
+		WithTraces:      false,
 	}
 
 	var err error
