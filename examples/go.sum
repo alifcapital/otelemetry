@@ -1,5 +1,7 @@
 github.com/alifcapital/otelemetry v0.0.0-20241101090819-2b3dd70178b9 h1:CjxOwNU/FYD4p4gFS83IClAy7FfNUJnVXpnTvea7izU=
 github.com/alifcapital/otelemetry v0.0.0-20241101090819-2b3dd70178b9/go.mod h1:hw1LRNYrozBSvR2ABYF2euz4uzlAhTmU1x+HNQP1or4=
+github.com/alifcapital/otelemetry v0.0.0-20241101095725-9b52364c6c13 h1:/GygTeX0RiXKZLxADdRrgPIgH31rB2kAj+lRVo30QUI=
+github.com/alifcapital/otelemetry v0.0.0-20241101095725-9b52364c6c13/go.mod h1:hw1LRNYrozBSvR2ABYF2euz4uzlAhTmU1x+HNQP1or4=
 github.com/cenkalti/backoff/v4 v4.3.0 h1:MyRJ/UdXutAwSAT+s3wNd7MfTIcy71VQueUuFK343L8=
 github.com/cenkalti/backoff/v4 v4.3.0/go.mod h1:Y3VNntkOUPxTVeUxJ/G5vcM//AlwfmyYozVcomhLiZE=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
