@@ -85,11 +85,13 @@ func (s *otelspan) SpanID() string {
 	return s.span.SpanContext().SpanID().String()
 }
 
+// Deprecated: use Inject
 func (s *otelspan) Inject(ctx context.Context, carrier propagation.TextMapCarrier) {
 	propagator := otel.GetTextMapPropagator()
 	propagator.Inject(ctx, carrier)
 }
 
+// Deprecated: use Extract
 func (s *otelspan) Extract(ctx context.Context, carrier propagation.TextMapCarrier) context.Context {
 	propagator := otel.GetTextMapPropagator()
 	return propagator.Extract(ctx, carrier)
