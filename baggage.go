@@ -1,11 +1,15 @@
 package otelemetry
 
-//
 import (
 	"context"
 
 	"go.opentelemetry.io/otel/baggage"
 )
+
+// GetBaggage retrieves the baggage from the context.
+func GetBaggage(ctx context.Context) baggage.Baggage {
+	return baggage.FromContext(ctx)
+}
 
 // AddBaggageItem adds a key-value pair to the baggage.
 func AddBaggageItem(ctx context.Context, key, value string) context.Context {

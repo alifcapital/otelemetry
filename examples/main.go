@@ -12,8 +12,6 @@ import (
 	"github.com/alifcapital/otelemetry"
 	"github.com/imroc/req/v3"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
-	"go.opentelemetry.io/otel/baggage"
-	"go.opentelemetry.io/otel/propagation"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -131,11 +129,16 @@ func handler2(w http.ResponseWriter, req *http.Request) {
 
 	ctx, span := telemetry.Trace().StartSpan(context.Background(), "ExecuteRequest")
 
-	// Добавляем user_id в Baggage
-	globalTransactionID, _ := baggage.NewMember("global_transaction_id", "12345")
-	someOtherData, _ := baggage.NewMember("some_other_data_key", "some_other_data_value")
-	bag, _ := baggage.New(globalTransactionID, someOtherData)
-	ctx = baggage.ContextWithBaggage(ctx, bag)
+	// Добавляем globalTransactionID в Baggage
+	//globalTransactionID, _ := baggage.NewMember("global_transaction_id", "12345")
+	//someOtherData, _ := baggage.NewMember("some_other_data_key", "some_other_data_value")
+	//bag, _ := baggage.New(globalTransactionID, someOtherData)
+	//ctx = baggage.ContextWithBaggage(ctx, bag)
+
+	ctx = otelemetry.AddBaggageItems(ctx, map[string]string{
+		"global_transaction_id": "12345",
+		"some_other_data_key":   "some_other_data_value",
+	})
 
 	makeRequest2(ctx)
 	span.End()
@@ -180,7 +183,8 @@ func makeRequest2(ctx context.Context) {
 
 	// Вставляем заголовки трассировки и Baggage в запрос
 	reqHeaders := make(map[string]string)
-	span.Inject(ctx, propagation.MapCarrier(reqHeaders))
+	//span.Inject(ctx, propagation.MapCarrier(reqHeaders))
+	otelemetry.Inject(ctx, reqHeaders)
 
 	// Отправляем запрос с req3
 	resp, err := client.R().
