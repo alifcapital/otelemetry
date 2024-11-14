@@ -95,8 +95,8 @@ func traceClientOpts(otelAgentAddr string, opts ...otlptracegrpc.Option) []otlpt
 		otlptracegrpc.WithEndpoint(otelAgentAddr),
 	}
 
-	if len(opts) == 0 {
-		return options
+	if len(opts) > 0 {
+		options = append(options, opts...)
 	}
 
 	return opts

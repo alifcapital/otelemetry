@@ -12,6 +12,7 @@ import (
 	"github.com/alifcapital/otelemetry"
 	"github.com/imroc/req/v3"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/trace"
 )
@@ -31,6 +32,9 @@ func main() {
 		Collector: otelemetry.Collector{
 			Host: "192.168.14.237",
 			Port: "4317",
+		},
+		TracerOptions: otelemetry.TracerOptions{
+			ClientOption: getTraceOption(),
 		},
 		ResourceOptions: getResources(),
 		WithMetrics:     true,
@@ -56,6 +60,12 @@ func main() {
 	}
 	if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		panic(err)
+	}
+}
+
+func getTraceOption() []otlptracegrpc.Option {
+	return []otlptracegrpc.Option{
+		otlptracegrpc.WithCompressor("gzip"),
 	}
 }
 
