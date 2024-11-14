@@ -99,5 +99,5 @@ func traceClientOpts(otelAgentAddr string, opts ...otlptracegrpc.Option) []otlpt
 		options = append(options, opts...)
 	}
 
-	return opts
+	return options
 }
