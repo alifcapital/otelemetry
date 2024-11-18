@@ -45,10 +45,18 @@ func (s *otelspan) Span() trace.Span {
 }
 
 func (s *otelspan) AddEvent(name string, kv ...attribute.KeyValue) {
+	if s.span == nil {
+		return
+	}
+
 	s.span.AddEvent(name, trace.WithAttributes(kv...))
 }
 
 func (s *otelspan) AddErrorEvent(name string, err error, kv ...attribute.KeyValue) {
+	if s.span == nil {
+		return
+	}
+
 	s.span.SetStatus(codes.Error, err.Error())
 	kv = append(kv, attribute.String("error.message", err.Error()))
 	kv = append(kv, attribute.String("error.type", fmt.Sprintf("%T", err)))
