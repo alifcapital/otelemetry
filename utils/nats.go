@@ -20,6 +20,15 @@ func GetJetstreamTraceContext(ctx context.Context, msg jetstream.Msg) context.Co
 	return otelemetry.Extract(ctx, headers)
 }
 
+func GetNatsTraceContext(ctx context.Context, msg nats.Msg) context.Context {
+	var headers = make(map[string]string)
+	for k, _ := range msg.Header {
+		headers[k] = msg.Header.Get(k)
+	}
+
+	return otelemetry.Extract(ctx, headers)
+}
+
 func SetNatsHeaderTraceContext(ctx context.Context) nats.Header {
 	carrier := propagation.MapCarrier{}
 	propagator := otel.GetTextMapPropagator()
