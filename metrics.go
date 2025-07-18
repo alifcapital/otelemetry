@@ -108,15 +108,7 @@ func newMeterProvider(ctx context.Context, otelAgentAddr string, res *sdkresourc
 		return nil, err
 	}
 
-	provider := sdkmetric.NewMeterProvider(
-		sdkmetric.WithResource(res),
-		sdkmetric.WithReader(
-			sdkmetric.NewPeriodicReader(
-				exporter,
-				sdkmetric.WithInterval(2*time.Second),
-			),
-		),
-	)
+	provider := sdkmetric.NewMeterProvider(meterProviderOpts(exporter, 2*time.Second, res, opts.ProviderOptions...)...)
 
 	return provider, nil
 }
@@ -146,4 +138,22 @@ func meterExporterOpts(otelAgentAddr string, opts ...otlpmetricgrpc.Option) []ot
 	}
 
 	return opts
+}
+
+func meterProviderOpts(exporter sdkmetric.Exporter, interval time.Duration, res *sdkresource.Resource, opts ...sdkmetric.Option) []sdkmetric.Option {
+	options := []sdkmetric.Option{
+		sdkmetric.WithResource(res),
+		sdkmetric.WithReader(
+			sdkmetric.NewPeriodicReader(
+				exporter,
+				sdkmetric.WithInterval(interval), //2*time.Second
+			),
+		),
+	}
+
+	if len(opts) > 0 {
+		options = append(options, opts...)
+	}
+
+	return options
 }
