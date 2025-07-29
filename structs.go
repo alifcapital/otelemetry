@@ -1,6 +1,8 @@
 package otelemetry
 
 import (
+	"time"
+
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
@@ -81,4 +83,6 @@ type MetricOptions struct {
 	ProviderOptions []sdkmetric.Option
 	// Options for the meter.
 	MeterOptions []metric.MeterOption
+
+	PeriodicInterval time.Duration
 }

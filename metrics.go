@@ -108,7 +108,14 @@ func newMeterProvider(ctx context.Context, otelAgentAddr string, res *sdkresourc
 		return nil, err
 	}
 
-	provider := sdkmetric.NewMeterProvider(meterProviderOpts(exporter, 2*time.Second, res, opts.ProviderOptions...)...)
+	provider := sdkmetric.NewMeterProvider(meterProviderOpts(exporter, func() time.Duration {
+		if opts.PeriodicInterval == 0 {
+			return 5 * time.Second
+		}
+		// Use the default if PeriodicInterval is not set
+		// This allows for a custom interval to be set in MetricOptions
+		return opts.PeriodicInterval
+	}(), res, opts.ProviderOptions...)...)
 
 	return provider, nil
 }
