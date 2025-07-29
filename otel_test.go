@@ -66,3 +66,33 @@ func TestShutdownTelemetryWithTimeout(t *testing.T) {
 	err = tel.Shutdown(ctx)
 	assert.Error(t, err)
 }
+
+func TestNewTelemetryWithResources(t *testing.T) {
+	cfg := Config{
+		Service: Service{
+			Name:      "test-service",
+			Namespace: "test-namespace",
+			Version:   "1.0.0",
+		},
+		Collector: Collector{
+			Host: "localhost",
+			Port: "4317",
+		},
+		ResourceOptions: getResources("test-pod"),
+	}
+
+	_, err := New(cfg)
+	assert.NoError(t, err)
+}
+
+func getResources(podname string) []resource.Option {
+	if podname == "" {
+		podname = "default-pod"
+	}
+
+	return []resource.Option{
+		resource.WithHost(),
+		resource.WithContainer(),
+		resource.WithAttributes(Attribute("pod.name", podname)),
+	}
+}
