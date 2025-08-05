@@ -3,7 +3,7 @@ module github.com/alifcapital/otelemetry/examples
 go 1.24
 
 require (
-	github.com/alifcapital/otelemetry v0.0.0-20250729105955-f192ed7c906a
+	github.com/alifcapital/otelemetry v0.0.0-20250801102707-51033228c34c
 	github.com/imroc/req/v3 v3.54.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.62.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.37.0

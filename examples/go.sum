@@ -1,5 +1,7 @@
 github.com/alifcapital/otelemetry v0.0.0-20250729105955-f192ed7c906a h1:dEbAdI5bfxAuGEWv1PSe0mJbnweEFBhOaAUPBvKNJ6c=
 github.com/alifcapital/otelemetry v0.0.0-20250729105955-f192ed7c906a/go.mod h1:FMKvie72xLIbMQw7S1RVRms+6pzgU/HSoDGJmz9wJeE=
+github.com/alifcapital/otelemetry v0.0.0-20250801102707-51033228c34c h1:IpfXe4IOp+PJZ2qpbYZhEuzV6k8MOgrsNrz1gUtPNQg=
+github.com/alifcapital/otelemetry v0.0.0-20250801102707-51033228c34c/go.mod h1:EVmLCM05QblbTXy4EFXjbzOcnsFHVdefF0Ft59VR11U=
 github.com/andybalholm/brotli v1.2.0 h1:ukwgCxwYrmACq68yiUqwIWnGY0cTPox/M94sVwToPjQ=
 github.com/andybalholm/brotli v1.2.0/go.mod h1:rzTDkvFWvIrjDXZHkuS16NPggd91W3kUSvPlQ1pLaKY=
 github.com/cenkalti/backoff/v5 v5.0.3 h1:ZN+IMa753KfX5hd8vVaMixjnqRZ3y8CuJKRKj1xcsSM=
