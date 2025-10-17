@@ -9,12 +9,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/alifcapital/otelemetry"
 	"github.com/imroc/req/v3"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 	"go.opentelemetry.io/otel/sdk/resource"
 	"go.opentelemetry.io/otel/trace"
+
+	"github.com/alifcapital/otelemetry"
 )
 
 var telemetry otelemetry.Telemetry
