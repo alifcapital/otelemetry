@@ -1,15 +1,8 @@
 # OTelemetry
 
-OTelemetry is a wrapper around (over gRPC) the [OpenTelemetry](https://opentelemetry.io/) library
-that provides a simple interface to instrument your code with telemetry.
+OTelemetry is a wrapper around the [OpenTelemetry](https://opentelemetry.io/) Go SDK that provides a simple interface to instrument your code with traces, metrics, and logs — exported over gRPC to an OpenTelemetry Collector.
 
-### ToDo
-- [ ] Jetstream utils
-- [ ] RabbitMQ utils
-- [ ] TLS support
-- [ ] Add tests
-- [ ] Modified examples
-- [ ] Add documentation
+When the `With*` flags are disabled the library falls back to stdout exporters, which is convenient for local development and debugging.
 
 ### Install
 
@@ -17,99 +10,207 @@ that provides a simple interface to instrument your code with telemetry.
 go get -u github.com/alifcapital/otelemetry
 ```
 
-
-### Usage
-
-Here is a simple example of how to use OTelemetry in your Go application:
+### Initialization
 
 ```go
 import "github.com/alifcapital/otelemetry"
 
 func main() {
-	// Configuration for OTelemetry
-	cfg := otelemetry.Config{
-		Service: otelemetry.ServiceConfig{
-			Name: "example-service",
-		},
-		Collector: otelemetry.CollectorConfig{
-			Host: "localhost",
-			Port: "4317",
-		},
-                TracerOptions: otelemetry.TracerOptions{
-                    ClientOption: []otlptracegrpc.Option{
-                        otlptracegrpc.WithCompressor("gzip"),
-                    },
-                },
-		WithTraces:  true,
-		WithMetrics: true,
-		WithLogs:    true,
-	}
+    cfg := otelemetry.Config{
+        Service: otelemetry.Service{
+            Name:      "example-service",
+            Namespace: "payments",
+            Version:   "1.0.0",
+        },
+        Collector: otelemetry.Collector{
+            Host: "localhost",
+            Port: "4317",
+        },
+        WithTraces:  true,
+        WithMetrics: true,
+        WithLogs:    true,
+    }
 
-	// Initialize OTelemetry
-	tel, err := otelemetry.New(cfg)
-	if err != nil {
-		log.Fatalf("failed to initialize telemetry: %v", err)
-	}
-	defer tel.Shutdown(context.Background())
-	
-	// your code 
-}	
+    tel, err := otelemetry.New(cfg)
+    if err != nil {
+        log.Fatalf("failed to initialize telemetry: %v", err)
+    }
+    defer tel.Shutdown(context.Background())
+}
 ```
 
-Example usage of tracer and span:
+Advanced options are passed through the provider-specific option structs. For example, to enable gzip compression for traces:
+
 ```go
-// Example usage of tracer and span
-ctx, span := tel.Trace().StartSpan(context.Background(), "example-span")
+import "go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+
+cfg := otelemetry.Config{
+    // ...
+    TracerOptions: otelemetry.TracerOptions{
+        ClientOption: []otlptracegrpc.Option{
+            otlptracegrpc.WithCompressor("gzip"),
+        },
+    },
+    MetricOptions: otelemetry.MetricOptions{
+        PeriodicInterval: 10 * time.Second, // default: 5s
+    },
+}
+```
+
+### Tracing
+
+```go
+// Start a new span
+ctx, span := tel.Trace().StartSpan(context.Background(), "operation-name")
 defer span.End()
 
-span.AddEvent("example event", otelemetry.Attribute("key", "value"))
+// Add an event
+span.AddEvent("something happened", otelemetry.Attribute("key", "value"))
+
+// Add a structured error event (sets span status to Error)
+span.AddErrorEvent("db query failed", err, otelemetry.Attribute("query", sql))
+
+// Record an error
+span.RecordError(err)
+
+// Set attributes on the span
+span.SetAttribute(otelemetry.Attribute("user.id", userID))
+
+// Get trace/span IDs (useful for logging correlation)
+traceID := span.TraceID()
+spanID  := span.SpanID()
 ```
 
-Get span from context:
+**Continuing a span from context:**
+
 ```go
 span := tel.Trace().SpanFromContext(ctx)
-
-span.AddEvent("example of continuing span get from context", otelemetry.Attribute("key", "value"))
+span.AddEvent("resumed span")
 ```
 
-Example usage meter:
+### Metrics
+
+All standard OpenTelemetry instrument types are supported:
 
 ```go
-// Example usage meter
-counter, err := tel.Metric().Float64Counter("example_counter")
-if err != nil {
-    panic(err)
-}
+// Counters
+counter, err := tel.Metric().Float64Counter("requests_total")
+counter.Add(ctx, 1, metric.WithAttributes(otelemetry.Attribute("status", "ok")))
 
-counter.Add(ctx, 1)
+intCounter, err := tel.Metric().Int64Counter("errors_total")
+
+// Gauges
+gauge, err := tel.Metric().Float64Gauge("queue_depth")
+gauge.Record(ctx, float64(len(queue)))
+
+// Histograms
+hist, err := tel.Metric().Float64Histogram("request_duration_seconds")
+hist.Record(ctx, duration.Seconds())
+
+// Up-down counters
+udCounter, err := tel.Metric().Int64UpDownCounter("active_connections")
+
+// Observable (async) instruments
+obsGauge, err := tel.Metric().Float64ObservableGauge("memory_usage_bytes")
+tel.Metric().RegisterCallback(func(ctx context.Context, o metric.Observer) error {
+    o.ObserveFloat64(obsGauge, getMemoryUsage())
+    return nil
+}, obsGauge)
 ```
 
-Example usage of logger:
+### Logging
 
 ```go
-// Example usage of logger
-tel.Log().Info(ctx, "log message", otelemetry.LogAttribute("key", "value"))
+tel.Log().Debug(ctx, "debug message", otelemetry.LogAttribute("key", "value"))
+tel.Log().Info(ctx, "user signed in", otelemetry.LogAttribute("user_id", userID))
+tel.Log().Warning(ctx, "slow query", otelemetry.LogAttribute("duration_ms", 450))
+tel.Log().Error(ctx, "payment failed", otelemetry.LogAttribute("error", err.Error()))
+tel.Log().Fatal(ctx, "unrecoverable failure")
 ```
 
+### Context Propagation
 
-Example of getting a context with tracing data from Nats message:
+**HTTP:**
 
 ```go
+// Inject the current span context into outgoing HTTP request headers
+otelemetry.InjectHTTPHeaders(ctx, req.Header)
 
-import (
-    otelemetryutils "github.com/alifcapital/otelemetry/utils"
-)
+// Extract span context from incoming HTTP request headers
+ctx = otelemetry.ExtractHTTPHeaders(ctx, r.Header)
+```
 
+**Generic map carrier (gRPC metadata, custom protocols, etc.):**
+
+```go
+// Inject
+headers := make(map[string]string)
+otelemetry.Inject(ctx, headers)
+
+// Extract
+ctx = otelemetry.Extract(ctx, headers)
+```
+
+### Message Queue Utilities
+
+Import the `utils` subpackage:
+
+```go
+import otelutils "github.com/alifcapital/otelemetry/utils"
+```
+
+**NATS / JetStream:**
+
+```go
+// Consumer: extract trace context from incoming message
 func (h *handler) SignedIn(msg jetstream.Msg) {
-    
-    ctx := otelemetryutils.GetNatsTraceContext(context.Background(), *msg)
-    
+    ctx := otelutils.GetJetstreamTraceContext(context.Background(), msg)
     ctx, span := tel.Trace().StartSpan(ctx, "NatsHandler: user.SignedIn")
     defer span.End()
-    
-    // code ...
+    // ...
 }
 
+// For plain nats.Msg:
+ctx = otelutils.GetNatsTraceContext(context.Background(), *msg)
+
+// Producer: inject trace context into outgoing message headers
+header := otelutils.SetNatsHeaderTraceContext(ctx)
+msg := &nats.Msg{Subject: "user.signed_in", Header: header}
+nc.PublishMsg(msg)
+```
+
+**RabbitMQ:**
+
+```go
+// Consumer: extract trace context from incoming delivery
+func (h *handler) handle(d amqp.Delivery) {
+    ctx := otelutils.GetRabbitMQTraceContext(context.Background(), d)
+    ctx, span := tel.Trace().StartSpan(ctx, "RabbitMQ: user.SignedIn")
+    defer span.End()
+    // ...
+}
+
+// Producer: inject trace context into publishing headers
+headers := otelutils.SetRabbitMQHeaderTraceContext(ctx)
+ch.PublishWithContext(ctx, exchange, key, false, false, amqp.Publishing{
+    Headers: headers,
+    Body:    body,
+})
+```
+
+### Baggage
+
+```go
+// Add baggage items to context
+ctx = otelemetry.AddBaggageItem(ctx, "tenant_id", "acme")
+ctx = otelemetry.AddBaggageItems(ctx, map[string]string{"env": "prod", "region": "eu-west"})
+
+// Read baggage
+tenantID := otelemetry.GetBaggageItem(ctx, "tenant_id")
+allBaggage := otelemetry.GetBaggage(ctx)
+
+// Remove a baggage item
+ctx = otelemetry.RemoveBaggageItem(ctx, "tenant_id")
 ```
 
 ### Contributing

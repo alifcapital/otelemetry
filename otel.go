@@ -66,19 +66,19 @@ func (t *telemetry) Shutdown(ctx context.Context) error {
 	// pushes any last exports to the receiver
 	if t.tracerProvider != nil {
 		if err := t.tracerProvider.Shutdown(cxt); err != nil {
-			otel.Handle(err)
+			return err
 		}
 	}
 
 	if t.meterProvider != nil {
 		if err := t.meterProvider.Shutdown(cxt); err != nil {
-			otel.Handle(err)
+			return err
 		}
 	}
 
 	if t.loggerProvider != nil {
 		if err := t.loggerProvider.Shutdown(cxt); err != nil {
-			otel.Handle(err)
+			return err
 		}
 	}
 
@@ -87,6 +87,9 @@ func (t *telemetry) Shutdown(ctx context.Context) error {
 
 // New creates a new Telemetry instance based on the provided configuration.
 func New(cfg Config) (Telemetry, error) {
+	if cfg.Service.Name == "" {
+		return nil, fmt.Errorf("service name is required")
+	}
 
 	var (
 		ctx               = context.Background()
