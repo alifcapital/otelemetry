@@ -3,6 +3,7 @@ package otelemetry
 import (
 	"context"
 	"errors"
+	"math"
 	"net/http"
 	"testing"
 
@@ -231,8 +232,18 @@ func TestAttribute(t *testing.T) {
 	}{
 		{"string", "hello", attribute.STRING},
 		{"int", 42, attribute.INT64},
+		{"int8", int8(42), attribute.INT64},
+		{"int16", int16(42), attribute.INT64},
+		{"int32", int32(42), attribute.INT64},
 		{"int64", int64(42), attribute.INT64},
+		{"uint", uint(42), attribute.INT64},
+		{"uint8", uint8(42), attribute.INT64},
+		{"uint16", uint16(42), attribute.INT64},
+		{"uint32", uint32(42), attribute.INT64},
+		{"uint64", uint64(42), attribute.INT64},
+		{"uint64_overflow", uint64(math.MaxUint64), attribute.STRING}, // no int64 fit -> string
 		{"bool", true, attribute.BOOL},
+		{"float32", float32(3.14), attribute.FLOAT64},
 		{"float64", 3.14, attribute.FLOAT64},
 		{"string_slice", []string{"a", "b"}, attribute.STRINGSLICE},
 		{"int_slice", []int{1, 2}, attribute.INT64SLICE},
@@ -250,6 +261,11 @@ func TestAttribute(t *testing.T) {
 			assert.Equal(t, tt.wantType, attr.Value.Type())
 		})
 	}
+
+	t.Run("uint64_overflow_value", func(t *testing.T) {
+		attr := Attribute("k", uint64(math.MaxUint64))
+		assert.Equal(t, "18446744073709551615", attr.Value.AsString())
+	})
 }
 
 // --- LogAttribute() ---
