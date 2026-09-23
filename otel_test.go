@@ -10,7 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/log"
 	"go.opentelemetry.io/otel/sdk/resource"
 )
 
@@ -274,21 +273,21 @@ func TestLogAttribute(t *testing.T) {
 	tests := []struct {
 		name     string
 		value    any
-		wantKind log.Kind
+		wantKind attribute.Type
 	}{
-		{"string", "hello", log.KindString},
-		{"int", 42, log.KindInt64},
-		{"int64", int64(42), log.KindInt64},
-		{"bool", true, log.KindBool},
-		{"float64", 3.14, log.KindFloat64},
-		{"unknown_type", struct{}{}, log.KindString}, // fallback
+		{"string", "hello", attribute.STRING},
+		{"int", 42, attribute.INT64},
+		{"int64", int64(42), attribute.INT64},
+		{"bool", true, attribute.BOOL},
+		{"float64", 3.14, attribute.FLOAT64},
+		{"unknown_type", struct{}{}, attribute.STRING}, // fallback
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			attr := LogAttribute("k", tt.value)
-			assert.Equal(t, "k", attr.Key)
-			assert.Equal(t, tt.wantKind, attr.Value.Kind())
+			assert.Equal(t, attribute.Key("k"), attr.Key)
+			assert.Equal(t, tt.wantKind, attr.Value.Type())
 		})
 	}
 }
