@@ -88,7 +88,7 @@ func handler(w http.ResponseWriter, req *http.Request) {
 
 	requestCount.Add(ctx, 1)
 
-	telemetry.Log().Info(ctx, "Request processed", otelemetry.LogAttribute("sleep", sleep))
+	telemetry.Log().Info(ctx, "Request processed", otelemetry.Attribute("sleep", sleep))
 
 	span.AddEvent("sleep event", otelemetry.Attribute("sleep", sleep))
 

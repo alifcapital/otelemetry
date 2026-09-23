@@ -14,6 +14,9 @@ func handleErr(err error, s string) {
 	}
 }
 
+// Attribute builds an [attribute.KeyValue] from an arbitrary Go value for use
+// in spans, metrics and log records. Unsupported types fall back to their
+// fmt "%+v" string form.
 func Attribute(k string, v any) attribute.KeyValue {
 	return parseAttribute(k, v)
 }
@@ -77,25 +80,15 @@ func uintAttribute(key string, v uint64) attribute.KeyValue {
 	return attribute.String(key, strconv.FormatUint(v, 10))
 }
 
+// LogAttribute builds a log attribute from an arbitrary Go value.
+//
+// Deprecated: Use [Attribute] instead; log records take [attribute.KeyValue]
+// since otel/log v0.21.0. LogAttribute will be removed in v0.4.0. To rewrite
+// calls automatically, run
+// `go run golang.org/x/tools/go/analysis/passes/inline/cmd/inline@latest -fix ./...`
+// (see MIGRATION.md).
+//
+//go:fix inline
 func LogAttribute(k string, v any) attribute.KeyValue {
-	return parseLogAttribute(k, v)
-}
-
-func parseLogAttribute(key string, value any) attribute.KeyValue {
-	var attr attribute.KeyValue
-	switch v := value.(type) {
-	case string:
-		attr = attribute.String(key, v)
-	case int:
-		attr = attribute.Int(key, v)
-	case int64:
-		attr = attribute.Int64(key, v)
-	case bool:
-		attr = attribute.Bool(key, v)
-	case float64:
-		attr = attribute.Float64(key, v)
-	default:
-		attr = attribute.String(key, fmt.Sprintf("%+v", v))
-	}
-	return attr
+	return Attribute(k, v)
 }

@@ -3,6 +3,7 @@ package otelemetry
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math"
 	"net/http"
 	"testing"
@@ -267,27 +268,19 @@ func TestAttribute(t *testing.T) {
 	})
 }
 
-// --- LogAttribute() ---
+// --- LogAttribute() (deprecated) ---
 
+// TestLogAttribute checks that the deprecated LogAttribute is an exact alias of
+// Attribute, so `go fix` inlining it does not change behavior.
 func TestLogAttribute(t *testing.T) {
-	tests := []struct {
-		name     string
-		value    any
-		wantKind attribute.Type
-	}{
-		{"string", "hello", attribute.STRING},
-		{"int", 42, attribute.INT64},
-		{"int64", int64(42), attribute.INT64},
-		{"bool", true, attribute.BOOL},
-		{"float64", 3.14, attribute.FLOAT64},
-		{"unknown_type", struct{}{}, attribute.STRING}, // fallback
+	values := []any{
+		"hello", 42, int64(42), true, 3.14, struct{}{},
+		int32(7), uint(7), float32(1.5), []string{"a", "b"}, []int{1, 2},
 	}
 
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			attr := LogAttribute("k", tt.value)
-			assert.Equal(t, attribute.Key("k"), attr.Key)
-			assert.Equal(t, tt.wantKind, attr.Value.Type())
+	for _, v := range values {
+		t.Run(fmt.Sprintf("%T", v), func(t *testing.T) {
+			assert.Equal(t, Attribute("k", v), LogAttribute("k", v))
 		})
 	}
 }
@@ -411,10 +404,10 @@ func TestLogAllLevels(t *testing.T) {
 	ctx := context.Background()
 
 	assert.NotPanics(t, func() {
-		tel.Log().Debug(ctx, "debug message", LogAttribute("k", "v"))
-		tel.Log().Info(ctx, "info message", LogAttribute("count", 42))
+		tel.Log().Debug(ctx, "debug message", Attribute("k", "v"))
+		tel.Log().Info(ctx, "info message", Attribute("count", 42))
 		tel.Log().Warning(ctx, "warning message")
-		tel.Log().Error(ctx, "error message", LogAttribute("err", "boom"))
+		tel.Log().Error(ctx, "error message", Attribute("err", "boom"))
 		tel.Log().Fatal(ctx, "fatal message")
 	})
 }
