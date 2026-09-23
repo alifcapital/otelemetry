@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
 	"go.opentelemetry.io/otel/exporters/stdout/stdoutlog"
 	"go.opentelemetry.io/otel/log"
@@ -16,11 +17,11 @@ type Log interface {
 	// Log returns the original logger.
 	Log() log.Logger // original logger
 
-	Debug(ctx context.Context, msg string, kv ...log.KeyValue)
-	Info(ctx context.Context, msg string, kv ...log.KeyValue)
-	Warning(ctx context.Context, msg string, kv ...log.KeyValue)
-	Error(ctx context.Context, msg string, kv ...log.KeyValue)
-	Fatal(ctx context.Context, msg string, kv ...log.KeyValue)
+	Debug(ctx context.Context, msg string, kv ...attribute.KeyValue)
+	Info(ctx context.Context, msg string, kv ...attribute.KeyValue)
+	Warning(ctx context.Context, msg string, kv ...attribute.KeyValue)
+	Error(ctx context.Context, msg string, kv ...attribute.KeyValue)
+	Fatal(ctx context.Context, msg string, kv ...attribute.KeyValue)
 }
 
 // otellog is an implementation of the Log interface using OpenTelemetry.
@@ -74,34 +75,34 @@ func (l *otellog) Log() log.Logger {
 	return l.log
 }
 
-func (l *otellog) Debug(ctx context.Context, msg string, kv ...log.KeyValue) {
+func (l *otellog) Debug(ctx context.Context, msg string, kv ...attribute.KeyValue) {
 	record := getRecord(msg, log.SeverityDebug, Debug, kv...)
 	l.log.Emit(ctx, record)
 }
 
-func (l *otellog) Info(ctx context.Context, msg string, kv ...log.KeyValue) {
+func (l *otellog) Info(ctx context.Context, msg string, kv ...attribute.KeyValue) {
 	record := getRecord(msg, log.SeverityInfo, Info, kv...)
 	l.log.Emit(ctx, record)
 }
 
-func (l *otellog) Warning(ctx context.Context, msg string, kv ...log.KeyValue) {
+func (l *otellog) Warning(ctx context.Context, msg string, kv ...attribute.KeyValue) {
 	record := getRecord(msg, log.SeverityWarn, Warn, kv...)
 	l.log.Emit(ctx, record)
 }
 
-func (l *otellog) Error(ctx context.Context, msg string, kv ...log.KeyValue) {
+func (l *otellog) Error(ctx context.Context, msg string, kv ...attribute.KeyValue) {
 	record := getRecord(msg, log.SeverityError, Error, kv...)
 	l.log.Emit(ctx, record)
 }
 
-func (l *otellog) Fatal(ctx context.Context, msg string, kv ...log.KeyValue) {
+func (l *otellog) Fatal(ctx context.Context, msg string, kv ...attribute.KeyValue) {
 	record := getRecord(msg, log.SeverityFatal, Fatal, kv...)
 	l.log.Emit(ctx, record)
 }
 
-func getRecord(msg string, severity log.Severity, sevName string, kv ...log.KeyValue) log.Record {
+func getRecord(msg string, severity log.Severity, sevName string, kv ...attribute.KeyValue) log.Record {
 	var record log.Record
-	record.SetBody(log.StringValue(msg))
+	record.SetBody(attribute.StringValue(msg))
 	record.SetSeverity(severity)
 	record.SetSeverityText(sevName)
 	record.SetTimestamp(time.Now())

@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/log"
 )
 
 func handleErr(err error, s string) {
@@ -78,25 +77,25 @@ func uintAttribute(key string, v uint64) attribute.KeyValue {
 	return attribute.String(key, strconv.FormatUint(v, 10))
 }
 
-func LogAttribute(k string, v any) log.KeyValue {
+func LogAttribute(k string, v any) attribute.KeyValue {
 	return parseLogAttribute(k, v)
 }
 
-func parseLogAttribute(key string, value any) log.KeyValue {
-	var attr log.KeyValue
+func parseLogAttribute(key string, value any) attribute.KeyValue {
+	var attr attribute.KeyValue
 	switch v := value.(type) {
 	case string:
-		attr = log.String(key, v)
+		attr = attribute.String(key, v)
 	case int:
-		attr = log.Int(key, v)
+		attr = attribute.Int(key, v)
 	case int64:
-		attr = log.Int64(key, v)
+		attr = attribute.Int64(key, v)
 	case bool:
-		attr = log.Bool(key, v)
+		attr = attribute.Bool(key, v)
 	case float64:
-		attr = log.Float64(key, v)
+		attr = attribute.Float64(key, v)
 	default:
-		attr = log.String(key, fmt.Sprintf("%+v", v))
+		attr = attribute.String(key, fmt.Sprintf("%+v", v))
 	}
 	return attr
 }

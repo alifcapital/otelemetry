@@ -128,6 +128,8 @@ tel.Log().Error(ctx, "payment failed", otelemetry.LogAttribute("error", err.Erro
 tel.Log().Fatal(ctx, "unrecoverable failure")
 ```
 
+Log attributes are `attribute.KeyValue` (`go.opentelemetry.io/otel/attribute`), so `attribute.String(...)` and similar constructors work too. Upgrading from v0.1.x? See [MIGRATION.md](MIGRATION.md).
+
 ### Context Propagation
 
 **HTTP:**

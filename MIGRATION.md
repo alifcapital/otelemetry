@@ -1,0 +1,57 @@
+# Migration guide
+
+## v0.1.x → v0.2.0
+
+v0.2.0 upgrades OpenTelemetry from v1.44.0 to v1.46.0 and the logs modules from v0.20.0 to v0.22.0. It also picks up security fixes in gRPC, `golang.org/x/crypto`, `x/net`, `x/text` and `klauspost/compress`.
+
+Starting with `go.opentelemetry.io/otel/log` v0.21.0, log attributes use the shared attribute types. `log.KeyValue`, `log.Value`, `log.Kind` and their constructors (`log.String`, `log.Int64`, …) no longer exist ([open-telemetry/opentelemetry-go#8490](https://github.com/open-telemetry/opentelemetry-go/pull/8490)). This library follows that change.
+
+### API changes
+
+| v0.1.x | v0.2.0 |
+|--------|--------|
+| `Log.Debug/Info/Warning/Error/Fatal(ctx, msg, kv ...log.KeyValue)` | `Log.Debug/Info/Warning/Error/Fatal(ctx, msg, kv ...attribute.KeyValue)` |
+| `LogAttribute(k, v) log.KeyValue` | `LogAttribute(k, v) attribute.KeyValue` |
+
+`attribute` is `go.opentelemetry.io/otel/attribute`. `LogAttribute` still maps the same Go types to the same value kinds.
+
+### Do I need to change anything?
+
+**No**, if you only pass `otelemetry.LogAttribute(...)` inline:
+
+```go
+tel.Log().Info(ctx, "user signed in", otelemetry.LogAttribute("user_id", userID))
+```
+
+**Yes**, in these cases:
+
+1. **You pass `go.opentelemetry.io/otel/log` constructors.** Switch to `attribute`:
+
+   ```go
+   // before
+   tel.Log().Info(ctx, "msg", log.String("k", "v"), log.Int64("n", 1))
+   // after
+   tel.Log().Info(ctx, "msg", attribute.String("k", "v"), attribute.Int64("n", 1))
+   ```
+
+2. **You store log attributes in typed variables, slices or fields.** Replace `log.KeyValue` with `attribute.KeyValue`:
+
+   ```go
+   // before
+   attrs := []log.KeyValue{otelemetry.LogAttribute("k", "v")}
+   // after
+   attrs := []attribute.KeyValue{otelemetry.LogAttribute("k", "v")}
+   ```
+
+3. **You implement or mock the `otelemetry.Log` interface.** Update the method signatures to `kv ...attribute.KeyValue`.
+
+4. **Your project uses the `otel/log` API directly or through a bridge** such as `otelslog`, `otelzap` or `otellogrus`. Go picks a single version of a module for the whole build, so your project also moves to `otel/log` v0.22.0. Upgrade the bridges to a release built against v0.22.0. For `go.opentelemetry.io/contrib/bridges/*` that is v0.20.1 or later.
+
+### Behavior changes
+
+- **stdout log exporter** (used when `WithLogs: false`): log bodies and attributes are now encoded as `attribute.Value` JSON, for example `{"Type":"STRING","Value":"..."}`. Update anything that parses this output. The OTLP wire format sent to the collector is unchanged.
+- See the upstream [OpenTelemetry-Go changelog](https://github.com/open-telemetry/opentelemetry-go/blob/main/CHANGELOG.md) for v1.45.0 and v1.46.0 for SDK-level changes.
+
+### Toolchain
+
+Several standard library vulnerabilities (`crypto/tls`, `encoding/asn1`, `net/http`, …) are fixed only in **Go 1.26.6**. Build with Go 1.26.6 or newer.
