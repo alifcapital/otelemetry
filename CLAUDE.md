@@ -66,7 +66,7 @@ All implementation structs are unexported; only interfaces are public.
 
 ### Helper functions
 
-- `Attribute(k, v any)` / `LogAttribute(k, v any)` — type-safe `attribute.KeyValue` builders (since `otel/log` v0.21 log attributes are `attribute.KeyValue` too) (`util.go`)
+- `Attribute(k, v any)` — type-safe `attribute.KeyValue` builder for spans, metrics and logs (`util.go`). `LogAttribute` is a deprecated `//go:fix inline` alias of it, scheduled for removal in v0.4.0
 - `Inject` / `Extract` / `InjectHTTPHeaders` / `ExtractHTTPHeaders` — W3C trace context propagation over map/HTTP carriers (`propagation.go`)
 - Baggage helpers: `GetBaggage`, `AddBaggageItem`, `AddBaggageItems`, `GetBaggageItem`, `RemoveBaggageItem` (`baggage.go`)
 

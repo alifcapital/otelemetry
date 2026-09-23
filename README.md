@@ -121,14 +121,14 @@ tel.Metric().RegisterCallback(func(ctx context.Context, o metric.Observer) error
 ### Logging
 
 ```go
-tel.Log().Debug(ctx, "debug message", otelemetry.LogAttribute("key", "value"))
-tel.Log().Info(ctx, "user signed in", otelemetry.LogAttribute("user_id", userID))
-tel.Log().Warning(ctx, "slow query", otelemetry.LogAttribute("duration_ms", 450))
-tel.Log().Error(ctx, "payment failed", otelemetry.LogAttribute("error", err.Error()))
+tel.Log().Debug(ctx, "debug message", otelemetry.Attribute("key", "value"))
+tel.Log().Info(ctx, "user signed in", otelemetry.Attribute("user_id", userID))
+tel.Log().Warning(ctx, "slow query", otelemetry.Attribute("duration_ms", 450))
+tel.Log().Error(ctx, "payment failed", otelemetry.Attribute("error", err.Error()))
 tel.Log().Fatal(ctx, "unrecoverable failure")
 ```
 
-Log attributes are `attribute.KeyValue` (`go.opentelemetry.io/otel/attribute`), so `attribute.String(...)` and similar constructors work too. Upgrading from v0.1.x? See [MIGRATION.md](MIGRATION.md).
+Log attributes are `attribute.KeyValue` (`go.opentelemetry.io/otel/attribute`), so `attribute.String(...)` and similar constructors work too. `LogAttribute` is deprecated in favor of `Attribute`. Upgrading? See [MIGRATION.md](MIGRATION.md).
 
 ### Context Propagation
 

@@ -1,5 +1,35 @@
 # Migration guide
 
+## v0.2.x → v0.3.0
+
+`LogAttribute` is **deprecated** and will be **removed in v0.4.0**. Use `Attribute` instead. Since v0.2.0, both return `attribute.KeyValue`, so `Attribute` works for spans, metrics and logs.
+
+### Automatic rewrite
+
+`LogAttribute` carries a `//go:fix inline` directive, so its calls can be rewritten mechanically:
+
+```bash
+go run golang.org/x/tools/go/analysis/passes/inline/cmd/inline@latest -fix ./...
+```
+
+This turns `otelemetry.LogAttribute(k, v)` into `otelemetry.Attribute(k, v)`.
+
+The built-in `go fix ./...` in Go 1.26.x also rewrites the calls, but it leaves an unused `go.opentelemetry.io/otel/attribute` import behind, so the code won't compile. If you use it, run `goimports -w .` afterwards.
+
+Until you migrate, staticcheck (SA1019), gopls and IDEs flag every remaining call.
+
+### Behavior change
+
+In v0.3.0, `LogAttribute` is an exact alias of `Attribute`. For most types the result is unchanged. The types below used to be stringified and are now recorded with their native type:
+
+| Value type | v0.2.x `LogAttribute` | v0.3.0 (`Attribute`) |
+|------------|-----------------------|----------------------|
+| `int8/16/32`, `uint*` | `STRING "1"` | `INT64 1` (a `uint64` above `MaxInt64` stays a decimal string) |
+| `float32` | `STRING "1.5"` | `FLOAT64 1.5` |
+| `[]string`, `[]int`, `[]int64`, `[]bool`, `[]float64` | `STRING "[a b]"` | typed slice, e.g. `STRINGSLICE ["a","b"]` |
+
+If your log queries, alerts or dashboards filter on such fields as strings, update them.
+
 ## v0.1.x → v0.2.0
 
 v0.2.0 upgrades OpenTelemetry from v1.44.0 to v1.46.0 and the logs modules from v0.20.0 to v0.22.0. It also picks up security fixes in gRPC, `golang.org/x/crypto`, `x/net`, `x/text` and `klauspost/compress`.
